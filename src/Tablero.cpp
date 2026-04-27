@@ -130,7 +130,9 @@ bool Tablero::ponerPieza(int f, int c, int jugador) {
         rejilla[f][c] = jugador;
     }
     
-    turnoActual++;
+    if (tipo != TipoCelda::VERDE) {
+        turnoActual++;
+    }
     return true;
 }
 

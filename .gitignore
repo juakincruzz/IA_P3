@@ -1,0 +1,38 @@
+# Binarios y Ejecutables
+n_en_raya
+n_en_rayaSH
+
+# Objetos y librerías
+*.o
+*.a
+*.so
+*.out
+
+# Archivos temporales de CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+install_manifest.txt
+compile_commands.json
+
+# Directorios de compilación (si existieran)
+build/
+bin/
+
+# Archivos del sistema y editores
+.DS_Store
+*~
+*.swp
+.vscode/
+.idea/
+.project
+.settings/
+
+# Archivos de depuración y logs
+*.log
+vgcore.*
+
+# Otros (opcional: ignora archivos de prueba locales si no los quieres en el repo)
+test.board
+practica3_ia_2026.zip
