@@ -36,7 +36,7 @@ public:
      * @brief Comprueba si hay un ganador en el estado actual.
      * @return 0 si no hay ganador, 1 o 2 para el jugador correspondiente, -1 si es empate.
      */
-    int comprobarGanador();
+    int comprobarGanador() const;
 
     /**
      * @brief Indica si el tablero está completamente lleno.
@@ -82,18 +82,21 @@ public:
     TipoCelda getTipoCelda(int f, int c) const { return especialidad[f][c]; }
 
     int getTurnoActual() const { return turnoActual; }
-    int getJugadorTurno() const { return (turnoActual % 2 == 0) ? 1 : 2; }
-    int getFaseActual() const { return turnoActual / 2; }
-    void setTurnoActual(int t) { turnoActual = t; }
+    int getJugadorTurno() const { return jugadorTurno; }
+    int getMovimientosRestantes() const { return movimientosRestantes; }
+    int getFaseActual() const { return faseActual; }
 
 private:
+    int jugadorTurno; // Jugador que debe mover ahora (1 o 2)
+    int movimientosRestantes; // Cuántas piezas le quedan por poner en este turno
+    int faseActual; // Fase de la trinidad (se incrementa al cambiar de jugador)
     int filas;
     int columnas;
     int nParaGanar;
-    int turnoActual; // Contador global de movimientos realizados
+    int turnoActual; // Contador global de movimientos realizados (fichas en tablero)
     std::vector<std::vector<int>> rejilla; // 0: Vacío, 1: Jugador 1, 2: Jugador 2
     std::vector<std::vector<TipoCelda>> especialidad; // Mapa de tipos de celda
-    std::vector<std::pair<int, int>> lineaGanadora; // Coordenadas de la línea que ha ganado
+    mutable std::vector<std::pair<int, int>> lineaGanadora; // Coordenadas de la línea que ha ganado
 };
 
 #endif // TABLERO_HPP

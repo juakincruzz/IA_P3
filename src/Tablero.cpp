@@ -2,7 +2,15 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 
+/**
+ * @brief Carga el estado de un tablero desde un fichero de texto.
+ * El formato del fichero debe incluir: filas, columnas, nParaGanar, fase de la trinidad, jugador actual
+ * seguido de la matriz del tablero.
+ * @param ruta Ruta al fichero .board
+ * @return Un objeto Tablero inicializado con los datos del fichero.
+ */
 Tablero Tablero::cargarDesdeFichero(const std::string& ruta) {
     std::ifstream f(ruta);
     if (!f.is_open()) {
@@ -15,16 +23,18 @@ Tablero Tablero::cargarDesdeFichero(const std::string& ruta) {
     
     Tablero t(fils, cols, nWin);
     
-    int fase, jugador;
-    f >> fase >> jugador;
+    std::string lineaRestante;
+    std::getline(f, lineaRestante); // Consumir el \n de la primera línea
+    std::getline(f, lineaRestante); // Leer la segunda línea entera
+    
+    std::stringstream ss(lineaRestante);
+    int fase = 2, jugador = 1, movs_rest = 2, turno_actual = 0;
+    ss >> fase >> jugador >> movs_rest >> turno_actual;
 
-    // Calcular un turnoActual que satisfaga fase y jugador
-    // fase = (turno / 2) % 3  =>  turno / 2 = 3*k + fase
-    // Si jugador es 1, turno es par: turno = 2 * (3*k + fase)
-    // Si jugador es 2, turno es impar: turno = 2 * (3*k + fase) + 1
-    // Usamos k=0 para simplificar, pero podríamos ajustarlo según piezas en tablero.
-    int turnoCalc = 2 * fase + (jugador - 1);
-    t.turnoActual = turnoCalc;
+    t.faseActual = fase;
+    t.jugadorTurno = jugador;
+    t.movimientosRestantes = movs_rest;
+    t.turnoActual = turno_actual;
 
     for (int i = 0; i < fils; ++i) {
         for (int j = 0; j < cols; ++j) {
@@ -38,14 +48,21 @@ Tablero Tablero::cargarDesdeFichero(const std::string& ruta) {
     return t;
 }
 
+/**
+ * @brief Constructor de la clase Tablero.
+ * Inicializa las dimensiones, el objetivo de victoria y las casillas especiales si es un tablero 9x9.
+ * @param filas Número de filas.
+ * @param cols Número de columnas.
+ * @param nParaGanar Número de piezas en línea para ganar.
+ */
 Tablero::Tablero(int filas, int cols, int nParaGanar) 
-    : filas(filas), columnas(cols), nParaGanar(nParaGanar), turnoActual(4) {
+    : filas(filas), columnas(cols), nParaGanar(nParaGanar), turnoActual(4), jugadorTurno(1), movimientosRestantes(1), faseActual(2) {
     // Inicializar la rejilla con ceros (vacío)
     rejilla.assign(filas, std::vector<int>(cols, 0));
     especialidad.assign(filas, std::vector<TipoCelda>(cols, TipoCelda::NORMAL));
 
     // --- EL DIAMANTE DEL NINJA (Inicio Cuádruple) ---
-    // Solo se aplica en el tablero estándar de 9x9
+    // Solo se aplica en el tablero estándar de 9x9 para mantener compatibilidad
     if (filas == 9 && columnas == 9 && nParaGanar == 5) {
         rejilla[4][0] = 1;
         rejilla[0][4] = 1;
@@ -54,7 +71,6 @@ Tablero::Tablero(int filas, int cols, int nParaGanar)
     }
 
     // --- DISEÑO DEFINITIVO 2026: ANILLOS DE NINJA ---
-    // Solo se aplica en el tablero estándar de 9x9
     if (filas == 9 && columnas == 9 && nParaGanar == 5) {
         // 1. Centro y Cruz Central: ROJO (Sabotaje)
         int midF = filas / 2;
@@ -83,62 +99,68 @@ Tablero::Tablero(int filas, int cols, int nParaGanar)
     }
 }
 
+/**
+ * @brief Ejecuta el movimiento de colocar una pieza en el tablero.
+ * Aplica validaciones de límites, adyacencia y trinidad, y procesa los efectos de casillas especiales.
+ * @param f Fila destino.
+ * @param c Columna destino.
+ * @param jugador ID del jugador que realiza el movimiento (1 o 2).
+ * @return true si el movimiento es legal y se ha realizado, false en caso contrario.
+ */
 bool Tablero::ponerPieza(int f, int c, int jugador) {
-    // Verificar si las coordenadas están dentro del tablero
-    if (f < 0 || f >= filas || c < 0 || c >= columnas) {
-        return false; 
-    }
-    
-    // Verificar si la casilla está vacía
-    if (rejilla[f][c] != 0) {
+    if (f < 0 || f >= filas || c < 0 || c >= columnas || rejilla[f][c] != 0 || jugador != jugadorTurno) {
         return false;
     }
 
-    // REGLAS NINJA (Solo en 9x9 con objetivo 5)
+    // Regla de Adyacencia y Trinidad (Solo en Ninja 9x9)
     if (filas == 9 && columnas == 9 && nParaGanar == 5) {
-        // 1. REGLA DE ADYACENCIA ESTRICTA:
-        if (!esVacio() && !tieneAdyacente(f, c)) {
-            return false;
+        if (!esVacio() && !tieneAdyacente(f, c)) return false;
+        if ((f + c) % 3 != (faseActual % 3)) return false;
+    }
+
+    TipoCelda tipo = especialidad[f][c];
+    
+    // EFECTO ROJO: Sabotaje (coloca ficha del rival)
+    if (tipo == TipoCelda::ROJO) {
+        rejilla[f][c] = (jugador == 1) ? 2 : 1;
+    } else {
+        rejilla[f][c] = jugador;
+    }
+
+    // EFECTO AMARILLO: Bomba (limpia fila y columna excepto la celda actual)
+    if (tipo == TipoCelda::AMARILLO) {
+        for (int i = 0; i < filas; ++i) {
+            if (i != f) rejilla[i][c] = 0;
         }
-        
-        // 2. REGLA DE LA TRINIDAD DEL NINJA (f+c)%3
-        int ronda = turnoActual / 2;
-        int residuoValido = ronda % 3;
-        if ((f + c) % 3 != residuoValido) {
-            return false;
+        for (int j = 0; j < columnas; ++j) {
+            if (j != c) rejilla[f][j] = 0;
         }
     }
 
-    // Colocar la pieza según la especialidad de la casilla
-    TipoCelda tipo = especialidad[f][c];
-    
-    if (tipo == TipoCelda::ROJO) {
-        // Sabotaje: Se coloca una pieza del oponente
-        rejilla[f][c] = (jugador == 1 ? 2 : 1);
-    } else if (tipo == Tablero::TipoCelda::AMARILLO) {
-        // Bomba: Limpiar fila y columna
-        for (int i = 0; i < filas; ++i) rejilla[i][c] = 0;
-        for (int j = 0; j < columnas; ++j) rejilla[f][j] = 0;
-        
-        // La pieza que activa la bomba SOBREVIVE
-        rejilla[f][c] = jugador;
-        
-        // La casilla se vuelve NORMAL tras el uso
-        especialidad[f][c] = TipoCelda::NORMAL;
-    } else {
-        // Normal o Verde: Se coloca la pieza del jugador
-        rejilla[f][c] = jugador;
+    turnoActual++;
+    movimientosRestantes--;
+
+    // EFECTO VERDE: Gana un movimiento extra
+    if (tipo == TipoCelda::VERDE) {
+        movimientosRestantes += 1;
     }
-    
-    if (tipo != TipoCelda::VERDE) {
-        turnoActual++;
+
+    // Cambio de turno si se agotan movimientos
+    if (movimientosRestantes <= 0) {
+        jugadorTurno = (jugadorTurno == 1) ? 2 : 1;
+        movimientosRestantes = 2; // Turnos estándar de 2 piezas
+        faseActual++; // Avanzamos la fase al cambiar de jugador
     }
+
     return true;
 }
 
-int Tablero::comprobarGanador() {
+/**
+ * @brief Escanea el tablero para encontrar si algún jugador ha completado una línea ganadora.
+ * @return ID del jugador ganador, 0 si no hay ganador, o -1 si hay empate por tablero lleno.
+ */
+int Tablero::comprobarGanador() const {
     lineaGanadora.clear();
-    // Direcciones para comprobar: horizontal, vertical, diagonal ascendente, diagonal descendente
     const int df[] = {0, 1, 1, 1};
     const int dc[] = {1, 0, 1, -1};
 
@@ -147,7 +169,6 @@ int Tablero::comprobarGanador() {
             int jugador = rejilla[f][c];
             if (jugador == 0) continue;
 
-            // Comprobar en las 4 direcciones
             for (int d = 0; d < 4; ++d) {
                 int contador = 1;
                 std::vector<std::pair<int, int>> posibleLinea = {{f, c}};
@@ -165,17 +186,20 @@ int Tablero::comprobarGanador() {
 
                 if (contador >= nParaGanar) {
                     lineaGanadora = posibleLinea;
-                    return jugador; // Ganador encontrado
+                    return jugador;
                 }
             }
         }
     }
-
-    // Ya no devolvemos -1 aquí para permitir que el controlador
-    // llene el tablero y luego llame al desempate por puntos.
-    return 0; // Sin ganador aún
+    return 0;
 }
 
+/**
+ * @brief Cuenta cuántas secuencias de piezas de una longitud dada posee un jugador.
+ * @param longitud Longitud de la línea a buscar.
+ * @param jugador ID del jugador (1 o 2).
+ * @return Número total de combinaciones encontradas.
+ */
 int Tablero::contarCombinaciones(int longitud, int jugador) const {
     int total = 0;
     const int df[] = {0, 1, 1, 1};
@@ -201,29 +225,37 @@ int Tablero::contarCombinaciones(int longitud, int jugador) const {
     return total;
 }
 
+/**
+ * @brief Determina el ganador final basándose en el recuento de líneas (Tie-break).
+ * Prioriza líneas de 5, luego de 4 y finalmente de 3.
+ * @return 1 o 2 para el ganador, -1 si el empate persiste.
+ */
 int Tablero::getGanadorDesempate() const {
-    // 1. Criterio 1: Más 5-en-raya
     int p1_5 = contarCombinaciones(5, 1);
     int p2_5 = contarCombinaciones(5, 2);
     if (p1_5 > p2_5) return 1;
     if (p2_5 > p1_5) return 2;
 
-    // 2. Criterio 2: Más 4-en-raya
     int p1_4 = contarCombinaciones(4, 1);
     int p2_4 = contarCombinaciones(4, 2);
     if (p1_4 > p2_4) return 1;
     if (p2_4 > p1_4) return 2;
 
-    // 3. Criterio 3: Más 3-en-raya
     int p1_3 = contarCombinaciones(3, 1);
     int p2_3 = contarCombinaciones(3, 2);
     if (p1_3 > p2_3) return 1;
     if (p2_3 > p1_3) return 2;
 
-    // 4. Empate absoluto
     return -1;
 }
 
+/**
+ * @brief Localiza todas las líneas de piezas de una longitud dada para un jugador.
+ * Útil para el resaltado visual en la interfaz gráfica.
+ * @param longitud Longitud de las líneas a buscar.
+ * @param jugador ID del jugador.
+ * @return Vector con vectores de coordenadas que forman cada línea.
+ */
 std::vector<std::vector<std::pair<int, int>>> Tablero::buscarTodasLasLineas(int longitud, int jugador) const {
     std::vector<std::vector<std::pair<int, int>>> resultados;
     const int df[] = {0, 1, 1, 1};
@@ -251,17 +283,21 @@ std::vector<std::vector<std::pair<int, int>>> Tablero::buscarTodasLasLineas(int 
     return resultados;
 }
 
+/**
+ * @brief Comprueba si todas las celdas del tablero están ocupadas.
+ */
 bool Tablero::estaLleno() const {
     for (int f = 0; f < filas; ++f) {
         for (int c = 0; c < columnas; ++c) {
-            if (rejilla[f][c] == 0) {
-                return false;
-            }
+            if (rejilla[f][c] == 0) return false;
         }
     }
     return true;
 }
 
+/**
+ * @brief Comprueba si el tablero no contiene ninguna pieza colocada.
+ */
 bool Tablero::esVacio() const {
     for (int f = 0; f < filas; ++f) {
         for (int c = 0; c < columnas; ++c) {
@@ -271,6 +307,12 @@ bool Tablero::esVacio() const {
     return true;
 }
 
+/**
+ * @brief Determina si una celda dada tiene al menos un vecino ocupado por una pieza.
+ * @param f Fila.
+ * @param c Columna.
+ * @return true si hay adyacencia, false si está aislada.
+ */
 bool Tablero::tieneAdyacente(int f, int c) const {
     for (int df = -1; df <= 1; ++df) {
         for (int dc = -1; dc <= 1; ++dc) {
@@ -285,9 +327,14 @@ bool Tablero::tieneAdyacente(int f, int c) const {
     return false;
 }
 
+/**
+ * @brief Comprueba si el jugador que tiene el turno puede realizar algún movimiento legal.
+ * Tiene en cuenta las reglas de la Trinidad y la Adyacencia en modo Ninja.
+ * @return true si existe al menos una jugada válida.
+ */
 bool Tablero::tieneMovimientosValidos() const {
     bool modoNinja = (filas == 9 && columnas == 9 && nParaGanar == 5);
-    int residuoValido = modoNinja ? ((turnoActual / 2) % 3) : -1;
+    int residuoValido = modoNinja ? (faseActual % 3) : -1;
     bool vacio = esVacio();
 
     for (int f = 0; f < filas; ++f) {
@@ -296,7 +343,7 @@ bool Tablero::tieneMovimientosValidos() const {
                 if (modoNinja) {
                     if ((f + c) % 3 == residuoValido && (vacio || tieneAdyacente(f, c))) return true;
                 } else {
-                    return true; // En modo normal, cualquier casilla vacía vale
+                    return true;
                 }
             }
         }

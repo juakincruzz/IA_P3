@@ -15,8 +15,8 @@
 void mostrarAyuda() {
     std::cout << "Uso: ./n_en_raya [opciones]" << std::endl;
     std::cout << "Opciones:" << std::endl;
-    std::cout << "  -p1 <tipo>  Tipo Jugador 1: humano, aleatorio, inteligente, status, ninja[1-3] (def: humano)" << std::endl;
-    std::cout << "  -p2 <tipo>  Tipo Jugador 2: humano, aleatorio, inteligente, status, ninja[1-3] (def: humano)" << std::endl;
+    std::cout << "  -p1 <tipo>  Tipo Jugador 1: humano, aleatorio, inteligente, status, ninja[1-4] (def: humano)" << std::endl;
+    std::cout << "  -p2 <tipo>  Tipo Jugador 2: humano, aleatorio, inteligente, status, ninja[1-4] (def: humano)" << std::endl;
     std::cout << "  -f <int>    Número de filas (por defecto: 9)" << std::endl;
     std::cout << "  -c <int>    Número de columnas (por defecto: 9)" << std::endl;
     std::cout << "  -n <int>    Número de piezas en raya para ganar (por defecto: 5)" << std::endl;
@@ -36,6 +36,7 @@ std::shared_ptr<Agente> crearAgente(const std::string& tipo, int id, int profund
     if (tipo == "ninja1") return std::make_shared<AgenteNinja>(id, 1);
     if (tipo == "ninja2") return std::make_shared<AgenteNinja>(id, 2);
     if (tipo == "ninja3") return std::make_shared<AgenteNinja>(id, 3);
+    if (tipo == "ninja4") return std::make_shared<AgenteNinja>(id, 4);
     return std::make_shared<AgenteHumanoConsola>(); 
 }
 

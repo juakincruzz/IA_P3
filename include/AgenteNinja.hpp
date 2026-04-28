@@ -13,6 +13,7 @@ public:
     
     std::pair<int, int> think(const Tablero& tablero) override;
     
+    virtual bool tieneLimiteDeTiempo() const override { return false; }
     void interrumpir() override {} // Por ahora síncrono respecto al script
 
 private:

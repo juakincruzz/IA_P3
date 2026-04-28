@@ -10,13 +10,17 @@
 AgenteNinja::AgenteNinja(int id, int nivel) : id(id), nivel(nivel) {}
 
 std::pair<int, int> AgenteNinja::think(const Tablero& tablero) {
+    std::cout << "Esperando la respuesta del ninja" << nivel << "..." << std::endl;
     std::stringstream ss;
     // Serializamos el estado para el puente
     ss << tablero.getFilas() << " " 
        << tablero.getColumnas() << " " 
        << tablero.getNParaGanar() << " " 
        << id << " " 
-       << nivel << " ";
+       << nivel << " "
+       << tablero.getFaseActual() << " "
+       << tablero.getMovimientosRestantes() << " "
+       << tablero.getTurnoActual() << " ";
        
     for (int f = 0; f < tablero.getFilas(); ++f) {
         for (int c = 0; c < tablero.getColumnas(); ++c) {
@@ -44,9 +48,10 @@ std::pair<int, int> AgenteNinja::think(const Tablero& tablero) {
     int rf, rc;
     std::stringstream rss(resultado);
     if (rss >> rf >> rc) {
+        std::cout << "¡Respuesta recibida! El Ninja propone: (" << rf << ", " << rc << ")" << std::endl;
         return {rf, rc};
     }
 
-    std::cerr << "Error: Respuesta inválida del Ninja: " << resultado << std::endl;
+    std::cout << "Error: Respuesta inválida del Ninja: " << resultado << std::endl;
     return {0, 0};
 }

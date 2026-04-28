@@ -277,8 +277,7 @@ void GUI::dibujarFondoElegante() {
 
 void GUI::dibujarTablero() {
     const Tablero& t = controlador->getTablero();
-    int ronda = t.getTurnoActual() / 2;
-    int residuoValido = ronda % 3;
+    int residuoValido = t.getFaseActual() % 3;
 
     for (int f = 0; f < filasTablero; ++f) {
         for (int c = 0; c < colsTablero; ++c) {

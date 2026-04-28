@@ -4,7 +4,7 @@
 #include <iostream>
 
 ControladorJuego::ControladorJuego(Tablero tablero, std::shared_ptr<Agente> p1, std::shared_ptr<Agente> p2, double limiteTiempo)
-    : tablero(tablero), p1(p1), p2(p2), turnoActual(1), movimientosPendientes(1), ganadorFinal(0), juegoTerminado(false),
+    : tablero(tablero), p1(p1), p2(p2), turnoActual(tablero.getJugadorTurno()), ganadorFinal(0), juegoTerminado(false),
       tiempoP1(0), tiempoP2(0), limiteTiempoSegundos(limiteTiempo), busquedaEnCurso(false), sugerenciaEnCurso(false), resolucionEnCurso(false), 
       ultimoResultadoResolucion(""), idH1(1), idH2(1), profundidadGlobal(5) {
     inicioTurno = std::chrono::steady_clock::now();
@@ -16,9 +16,8 @@ void ControladorJuego::paso() {
     // DETECCIÓN DE BLOQUEO (Paso de turno automático)
     if (!tablero.tieneMovimientosValidos()) {
         std::cout << "¡Jugador " << turnoActual << " no tiene movimientos válidos! Pasando turno..." << std::endl;
-        tablero.pasarTurno(); // Avanzar contador global del tablero (Regla Trinidad)
-        turnoActual = (turnoActual == 1) ? 2 : 1; // Cambiar jugador
-        movimientosPendientes = 1;
+        tablero.pasarTurno(); 
+        turnoActual = tablero.getJugadorTurno(); // Sincronizar
         inicioTurno = std::chrono::steady_clock::now();
         return;
     }
@@ -111,8 +110,7 @@ double ControladorJuego::getTiempoAcumulado(int jugador) const {
 
 void ControladorJuego::reiniciar() {
     tablero = Tablero(tablero.getFilas(), tablero.getColumnas(), tablero.getNParaGanar());
-    turnoActual = 1;
-    movimientosPendientes = 1;
+    turnoActual = tablero.getJugadorTurno();
     ganadorFinal = 0;
     juegoTerminado = false;
     tiempoP1 = tiempoP2 = 0;
@@ -173,29 +171,12 @@ bool ControladorJuego::procesarMovimiento(int f, int c) {
                     std::cout << "Líneas de 4 J1: " << tablero.contarCombinaciones(4, 1) << " | J2: " << tablero.contarCombinaciones(4, 2) << std::endl;
                 }
             } else {
-                // GESTIÓN DE ESPECIALIDADES
-                Tablero::TipoCelda tipo = tablero.getTipoCelda(f, c);
-                if (tipo == Tablero::TipoCelda::VERDE) {
-                    std::cout << "¡CELDA VERDE! Jugador " << turnoActual << " repite turno." << std::endl;
-                    movimientosPendientes = 1; // Se queda en el mismo turno
-                } else if (tipo == Tablero::TipoCelda::ROJO) {
-                    // Ahora la casilla roja funciona como una normal en términos de turnos,
-                    // pero ya ha colocado una pieza enemiga arriba.
-                    movimientosPendientes--;
-                    if (movimientosPendientes <= 0) {
-                        turnoActual = (turnoActual == 1) ? 2 : 1;
-                        movimientosPendientes = 1;
-                        std::cout << "Siguiente turno: Jugador " << turnoActual << std::endl;
-                    }
+                // Sincronizar estado con el tablero real
+                if (turnoActual != tablero.getJugadorTurno()) {
+                    turnoActual = tablero.getJugadorTurno();
+                    std::cout << "Siguiente turno: Jugador " << turnoActual << std::endl;
                 } else {
-                    movimientosPendientes--;
-                    if (movimientosPendientes <= 0) {
-                        turnoActual = (turnoActual == 1) ? 2 : 1;
-                        movimientosPendientes = 1;
-                        std::cout << "Siguiente turno: Jugador " << turnoActual << std::endl;
-                    } else {
-                        std::cout << "Jugador " << turnoActual << " aún tiene " << movimientosPendientes << " movimiento(s)." << std::endl;
-                    }
+                    std::cout << "Jugador " << turnoActual << " aún tiene " << tablero.getMovimientosRestantes() << " movimiento(s)." << std::endl;
                 }
             }
         }
