@@ -156,6 +156,44 @@ bool Tablero::ponerPieza(int f, int c, int jugador) {
 }
 
 /**
+ * @brief Genera todos los estados sucesores válidos desde el tablero actual.
+ * @return Un vector de objetos Tablero representando los estados hijos.
+ */
+std::vector<Tablero> Tablero::getSucesores() const {
+    std::vector<Tablero> sucesores;
+    
+    // Si ya hay un ganador, no hay sucesores
+    if (comprobarGanador() != 0) return sucesores;
+
+    bool modoNinja = (filas == 9 && columnas == 9 && nParaGanar == 5);
+    int residuoValido = modoNinja ? (faseActual % 3) : -1;
+    bool vacio = esVacio();
+
+    for (int f = 0; f < filas; ++f) {
+        for (int c = 0; c < columnas; ++c) {
+            if (rejilla[f][c] == 0) {
+                bool movimientoValido = false;
+                if (modoNinja) {
+                    if ((f + c) % 3 == residuoValido && (vacio || tieneAdyacente(f, c))) {
+                        movimientoValido = true;
+                    }
+                } else {
+                    movimientoValido = true;
+                }
+
+                if (movimientoValido) {
+                    Tablero hijo = *this;
+                    if (hijo.ponerPieza(f, c, jugadorTurno)) {
+                        sucesores.push_back(hijo);
+                    }
+                }
+            }
+        }
+    }
+    return sucesores;
+}
+
+/**
  * @brief Escanea el tablero para encontrar si algún jugador ha completado una línea ganadora.
  * @return ID del jugador ganador, 0 si no hay ganador, o -1 si hay empate por tablero lleno.
  */
@@ -191,6 +229,12 @@ int Tablero::comprobarGanador() const {
             }
         }
     }
+    
+    // Si no hay ganador directo y el tablero está lleno, aplicar desempate
+    if (estaLleno()) {
+        return getGanadorDesempate();
+    }
+
     return 0;
 }
 
@@ -231,20 +275,11 @@ int Tablero::contarCombinaciones(int longitud, int jugador) const {
  * @return 1 o 2 para el ganador, -1 si el empate persiste.
  */
 int Tablero::getGanadorDesempate() const {
-    int p1_5 = contarCombinaciones(5, 1);
-    int p2_5 = contarCombinaciones(5, 2);
-    if (p1_5 > p2_5) return 1;
-    if (p2_5 > p1_5) return 2;
-
     int p1_4 = contarCombinaciones(4, 1);
     int p2_4 = contarCombinaciones(4, 2);
+
     if (p1_4 > p2_4) return 1;
     if (p2_4 > p1_4) return 2;
-
-    int p1_3 = contarCombinaciones(3, 1);
-    int p2_3 = contarCombinaciones(3, 2);
-    if (p1_3 > p2_3) return 1;
-    if (p2_3 > p1_3) return 2;
 
     return -1;
 }

@@ -46,7 +46,6 @@ std::pair<int, int> AgenteEstudiante::think(const Tablero& tablero) {
 }
 
 
-
 /**
  * @brief Compara dos tableros para identificar cuál ha sido el movimiento realizado.
  * @param padre Estado inicial del tablero.
@@ -69,7 +68,7 @@ std::pair<int, int> SacarMovimiento(const Tablero& padre, const Tablero &hijo){
 std::pair<int, int> AgenteEstudiante::JuegaAleatorio(const Tablero& tablero) {
 
     // Calculo los tableros descendientes de tablero
-    auto sucesores = getSucesores(tablero);
+    auto sucesores = tablero.getSucesores();
 
     // Si no tiene descendientes, paso el turno
     if (sucesores.empty()) return {-1, -1};
@@ -80,20 +79,6 @@ std::pair<int, int> AgenteEstudiante::JuegaAleatorio(const Tablero& tablero) {
     // Saco el movimiento realizado comparando el tablero original con el elegido.
     std::pair<int,int> Mov = SacarMovimiento(tablero, sucesores[elegido]);
 
-    return Mov;
-}
-
-/**
- * @brief Punto de entrada para el juego inteligente.
- * @param tablero Estado actual del juego.
- * @return La jugada elegida por el algoritmo de búsqueda.
- */
-std::pair<int, int> AgenteEstudiante::JuegaInteligente(const Tablero& tablero) {
-    std::pair<int,int> Mov;
-
-    double valor = minimax(tablero, 0, profundidadMax, Mov);
-    //double valor = alfaBeta(tablero, 0, profundidadMax, MenosInfinito, MasInfinito, Mov);
-    std::cout << "Valor Minimax: " << valor << "\tJugada: (" << Mov.first << ", " << Mov.second << ")\n";
     return Mov;
 }
 
@@ -112,6 +97,8 @@ AgenteEstudiante::Resultado AgenteEstudiante::Status(const Tablero &tablero, std
 
     return Resultado::EMPATE;
 }
+
+
 
 /**
  * @brief Implementación del algoritmo Minimax clásico.
@@ -135,6 +122,22 @@ double AgenteEstudiante::minimax(const Tablero &tablero, int profundidad, int pr
 
     return 0;
 }
+
+
+/**
+ * @brief Punto de entrada para el juego inteligente.
+ * @param tablero Estado actual del juego.
+ * @return La jugada elegida por el algoritmo de búsqueda.
+ */
+std::pair<int, int> AgenteEstudiante::JuegaInteligente(const Tablero& tablero) {
+    std::pair<int,int> Mov;
+
+    double valor = alfaBeta(tablero, 0, profundidadMax, MenosInfinito, MasInfinito, Mov);
+    std::cout << "Valor Minimax: " << valor << "\tJugada: (" << Mov.first << ", " << Mov.second << ")\n";
+    return Mov;
+}
+
+
 
 
 /**
@@ -216,38 +219,3 @@ double AgenteEstudiante::heuristica2(const Tablero& tablero) {
 return 0;
 }
 
-
-/**
- * @brief Genera todos los estados sucesores válidos para el turno actual.
- * @param t Tablero padre.
- * @return Lista de tableros resultantes de movimientos válidos.
- * @note Aplica las reglas de la Trinidad y Adyacencia si está en Modo Competición.
- */
-std::vector<Tablero> AgenteEstudiante::getSucesores(const Tablero& t) const {
-    std::vector<Tablero> sucesores;
-    int jugadorTurno = t.getJugadorTurno();
-    
-    // Las reglas especiales solo se aplican al modo Competición 9x9 con objetivo 5
-    bool modoCompeticion = (t.getFilas() == 9 && t.getColumnas() == 9 && t.getNParaGanar() == 5);
-    int residuoValido = modoCompeticion ? (t.getFaseActual() % 3) : -1;
-
-    for (int f = 0; f < t.getFilas(); ++f) {
-        for (int c = 0; c < t.getColumnas(); ++c) {
-            if (t.getCelda(f, c) == 0) {
-                bool puedeMover = true;
-                
-                // Aplicar restricciones solo si es modo Competición
-                if (modoCompeticion) {
-                    if ((f + c) % 3 != residuoValido) puedeMover = false;
-                    else if (!t.esVacio() && !t.tieneAdyacente(f, c)) puedeMover = false;
-                }
-
-                if (puedeMover) {
-                    Tablero copia = t;
-                    if (copia.ponerPieza(f, c, jugadorTurno)) sucesores.push_back(copia);
-                }
-            }
-        }
-    }
-    return sucesores;
-}

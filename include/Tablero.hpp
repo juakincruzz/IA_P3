@@ -29,6 +29,7 @@ public:
      * @return true si el movimiento fue válido y se realizó con éxito.
      */
     bool ponerPieza(int f, int c, int jugador);
+    std::vector<Tablero> getSucesores() const; // Devuelve los posibles tableros hijos
     bool tieneMovimientosValidos() const; // Comprueba si el jugador actual puede mover
     void pasarTurno() { turnoActual++; }  // Incrementa el turno sin poner pieza
 

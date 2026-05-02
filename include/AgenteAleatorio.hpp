@@ -16,16 +16,23 @@ public:
     }
 
     std::pair<int, int> think(const Tablero& tablero) override {
-        std::vector<std::pair<int, int>> disponibles;
+        std::vector<Tablero> sucesores = tablero.getSucesores();
+        if (sucesores.empty()) return {-1, -1};
+
+        // Elegimos un sucesor al azar
+        const Tablero& elegido = sucesores[std::rand() % sucesores.size()];
+
+        // Para devolver la coordenada (f, c), tenemos que buscar qué celda ha cambiado
+        // ya que el motor espera coordenadas.
         for (int f = 0; f < tablero.getFilas(); ++f) {
             for (int c = 0; c < tablero.getColumnas(); ++c) {
-                if (tablero.getCelda(f, c) == 0) {
-                    disponibles.push_back({f, c});
+                if (tablero.getCelda(f, c) != elegido.getCelda(f, c)) {
+                    return {f, c};
                 }
             }
         }
-        if (disponibles.empty()) return {-1, -1};
-        return disponibles[std::rand() % disponibles.size()];
+
+        return {-1, -1};
     }
 };
 

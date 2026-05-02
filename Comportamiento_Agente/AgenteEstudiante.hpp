@@ -19,6 +19,7 @@ public:
 
     enum class ModoJuego { ALEATORIO, MINIMAX, INTELIGENTE, STATUS };
 
+
     /**
      * Constructor 
      */
@@ -28,12 +29,6 @@ public:
      * @brief Decide el movimiento usando el algoritmo MiniMax con Poda Alfa-Beta.
      */
     virtual std::pair<int, int> think(const Tablero& tablero) override;
-
-
-    /**
-     * @brief Genera todos los estados posibles para el jugador que tiene el turno.
-     */
-    std::vector<Tablero> getSucesores(const Tablero& t) const;
 
 
     // --- Métodos de Juego  ---
