@@ -215,8 +215,10 @@ void ControladorJuego::ejecutarResolucion() {
         auto res = iaTemporal.Status(tCopia, mov);
         
         std::string sVer;
-        if (res == AgenteEstudiante::Resultado::VICTORIA) sVer = "GANA J1";
-        else if (res == AgenteEstudiante::Resultado::DERROTA) sVer = "GANA J2";
+        if (idAgente == 1 && res == AgenteEstudiante::Resultado::VICTORIA ||
+            idAgente == 2 && res == AgenteEstudiante::Resultado::DERROTA) sVer = "GANA J1";
+        else if (idAgente == 1 && res == AgenteEstudiante::Resultado::DERROTA ||
+                 idAgente == 2 && res == AgenteEstudiante::Resultado::VICTORIA) sVer = "GANA J2";
         else sVer = "EMPATE";
 
         // Formatear mensaje con coordenadas: "(f, c) - VEREDICTO"
