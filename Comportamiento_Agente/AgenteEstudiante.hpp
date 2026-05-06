@@ -8,8 +8,8 @@
 #include <vector>
 
 /**
- * @brief Agente que será implementado por los estudiantes usando MiniMax y Poda Alfa-Beta.
- */
+    * @brief Agente que será implementado por los estudiantes usando MiniMax y Poda Alfa-Beta.
+*/
 class AgenteEstudiante : public Agente {
 public:
     static constexpr double GANAR = 1e12;
@@ -21,13 +21,13 @@ public:
 
 
     /**
-     * Constructor 
-     */
+        * Constructor 
+    */
     AgenteEstudiante(int id, int profundidadMax, double tiempoMax = 5.0, int numHeuristica = 1, ModoJuego modo = ModoJuego::INTELIGENTE);
 
     /**
-     * @brief Decide el movimiento usando el algoritmo MiniMax con Poda Alfa-Beta.
-     */
+        * @brief Decide el movimiento usando el algoritmo MiniMax con Poda Alfa-Beta.
+    */
     virtual std::pair<int, int> think(const Tablero& tablero) override;
 
 
@@ -41,18 +41,18 @@ public:
     enum class Resultado { VICTORIA, EMPATE, DERROTA };
 
     /**
-     * @brief Implementación del algoritmo Status para resolución completa.
-     */
+        * @brief Implementación del algoritmo Status para resolución completa.
+    */
     Resultado Status(const Tablero &tablero, std::pair<int,int> &Mov);
 
     /**
-     * @brief Implementación del algoritmo MiniMax clásico.
-     */
+        * @brief Implementación del algoritmo MiniMax clásico.
+    */
     double minimax(const Tablero &tablero, int profundidad, int prof_Max, std::pair<int,int> &Mov);
 
     /**
-     * @brief Implementación del algoritmo MiniMax con Poda Alfa-Beta.
-     */
+        * @brief Implementación del algoritmo MiniMax con Poda Alfa-Beta.
+    */
     double alfaBeta(const Tablero &tablero, int profundidad, int prof_Max, double alfa, double beta, std::pair<int,int> &Mov);
 
     virtual void interrumpir() override { abortarBanda = true; }
@@ -73,14 +73,14 @@ private:
     
 
     /**
-     * @brief Funciones heurísticas para evaluar un estado del tablero. 
-     * La que se llama "heuristica" llama al resto. 
-     * En el valor 0 esta heuristicaPrueba que no se puede modificar
-     * El usuario puede definir tantas como quiera y asignarle un número
-     * IMPORTANTE: en la evaluación final se probarará con las que esté bajo -id 1
-     * @param tablero Estado a evaluar.
-     * @return Valor numérico que representa la ventaja para este agente.
-     */
+        * @brief Funciones heurísticas para evaluar un estado del tablero. 
+        * La que se llama "heuristica" llama al resto. 
+        * En el valor 0 esta heuristicaPrueba que no se puede modificar
+        * El usuario puede definir tantas como quiera y asignarle un número
+        * IMPORTANTE: en la evaluación final se probarará con las que esté bajo -id 1
+        * @param tablero Estado a evaluar.
+        * @return Valor numérico que representa la ventaja para este agente.
+    */
     double heuristica(const Tablero& tablero);
 
     double heuristicaPrueba(const Tablero& tablero);

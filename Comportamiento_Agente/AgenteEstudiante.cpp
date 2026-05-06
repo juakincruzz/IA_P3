@@ -47,11 +47,11 @@ std::pair<int, int> AgenteEstudiante::think(const Tablero& tablero) {
 
 
 /**
- * @brief Compara dos tableros para identificar cuál ha sido el movimiento realizado.
- * @param padre Estado inicial del tablero.
- * @param hijo Estado resultante tras un movimiento.
- * @return Un par (fila, columna) con la posición de la nueva pieza.
- */
+    * @brief Compara dos tableros para identificar cuál ha sido el movimiento realizado.
+    * @param padre Estado inicial del tablero.
+    * @param hijo Estado resultante tras un movimiento.
+    * @return Un par (fila, columna) con la posición de la nueva pieza.
+*/
 std::pair<int, int> SacarMovimiento(const Tablero& padre, const Tablero &hijo){
     for(int f=0; f<padre.getFilas(); ++f)
         for(int c=0; c<padre.getColumnas(); ++c)
@@ -61,10 +61,10 @@ std::pair<int, int> SacarMovimiento(const Tablero& padre, const Tablero &hijo){
 }
 
 /**
- * @brief Implementa un agente que juega de forma totalmente aleatoria.
- * @param tablero Estado actual del juego.
- * @return La jugada elegida al azar.
- */
+    * @brief Implementa un agente que juega de forma totalmente aleatoria.
+    * @param tablero Estado actual del juego.
+    * @return La jugada elegida al azar.
+*/
 std::pair<int, int> AgenteEstudiante::JuegaAleatorio(const Tablero& tablero) {
 
     // Calculo los tableros descendientes de tablero
@@ -84,12 +84,12 @@ std::pair<int, int> AgenteEstudiante::JuegaAleatorio(const Tablero& tablero) {
 
 
 /**
- * @brief Algoritmo de resolución completa para estados de final de juego.
- * Determina si una posición está matemáticamente ganada, perdida o empatada.
- * @param tablero Estado a evaluar.
- * @param Mov [Salida] La jugada óptima encontrada.
- * @return Resultado del análisis (VICTORIA, DERROTA o EMPATE).
- */
+    * @brief Algoritmo de resolución completa para estados de final de juego.
+    * Determina si una posición está matemáticamente ganada, perdida o empatada.
+    * @param tablero Estado a evaluar.
+    * @param Mov [Salida] La jugada óptima encontrada.
+    * @return Resultado del análisis (VICTORIA, DERROTA o EMPATE).
+*/
 AgenteEstudiante::Resultado AgenteEstudiante::Status(const Tablero &tablero, std::pair<int,int> &Mov) {
     /* ============== Este trozo de código se tiene que quedar aquí  =============== */
     nodosVisitados++;
@@ -102,13 +102,13 @@ AgenteEstudiante::Resultado AgenteEstudiante::Status(const Tablero &tablero, std
 
 
 /**
- * @brief Implementación del algoritmo Minimax clásico.
- * @param tablero Estado actual.
- * @param profundidad Nivel actual en el árbol de búsqueda.
- * @param prof_Max Límite de profundidad de la búsqueda.
- * @param Mov [Salida] La mejor jugada encontrada en la raíz.
- * @return Valor heurístico del estado.
- */
+    * @brief Implementación del algoritmo Minimax clásico.
+    * @param tablero Estado actual.
+    * @param profundidad Nivel actual en el árbol de búsqueda.
+    * @param prof_Max Límite de profundidad de la búsqueda.
+    * @param Mov [Salida] La mejor jugada encontrada en la raíz.
+    * @return Valor heurístico del estado.
+*/
 double AgenteEstudiante::minimax(const Tablero &tablero, int profundidad, int prof_Max, std::pair<int,int> &Mov) {
     /* ============== Este trozo de código se tiene que quedar aquí  =============== */
     nodosVisitados++;
@@ -126,10 +126,10 @@ double AgenteEstudiante::minimax(const Tablero &tablero, int profundidad, int pr
 
 
 /**
- * @brief Punto de entrada para el juego inteligente.
- * @param tablero Estado actual del juego.
- * @return La jugada elegida por el algoritmo de búsqueda.
- */
+    * @brief Punto de entrada para el juego inteligente.
+    * @param tablero Estado actual del juego.
+    * @return La jugada elegida por el algoritmo de búsqueda.
+*/
 std::pair<int, int> AgenteEstudiante::JuegaInteligente(const Tablero& tablero) {
     std::pair<int,int> Mov;
 
@@ -142,15 +142,15 @@ std::pair<int, int> AgenteEstudiante::JuegaInteligente(const Tablero& tablero) {
 
 
 /**
- * @brief Implementación del algoritmo Minimax con Poda Alfa-Beta.
- * @param tablero Estado actual.
- * @param profundidad Nivel actual en el árbol de búsqueda.
- * @param prof_Max Límite de profundidad de la búsqueda.
- * @param alfa Valor mínimo garantizado para el jugador MAX.
- * @param beta Valor máximo garantizado para el jugador MIN.
- * @param Mov [Salida] La mejor jugada encontrada en la raíz.
- * @return Valor heurístico del estado tras la poda.
- */
+    * @brief Implementación del algoritmo Minimax con Poda Alfa-Beta.
+    * @param tablero Estado actual.
+    * @param profundidad Nivel actual en el árbol de búsqueda.
+    * @param prof_Max Límite de profundidad de la búsqueda.
+    * @param alfa Valor mínimo garantizado para el jugador MAX.
+    * @param beta Valor máximo garantizado para el jugador MIN.
+    * @param Mov [Salida] La mejor jugada encontrada en la raíz.
+    * @return Valor heurístico del estado tras la poda.
+*/
 double AgenteEstudiante::alfaBeta(const Tablero &tablero, int profundidad, int prof_Max, double alfa, double beta, std::pair<int,int> &Mov) {
     /* ============== Este trozo de código se tiene que quedar aquí  =============== */
     nodosVisitados++;
@@ -167,10 +167,10 @@ double AgenteEstudiante::alfaBeta(const Tablero &tablero, int profundidad, int p
 }
 
 /**
- * @brief Función heurística para evaluar la calidad de un tablero.
- * @param tablero Estado a evaluar.
- * @return Puntuación numérica (positiva para ventaja de J1, negativa para J2).
- */
+    * @brief Función heurística para evaluar la calidad de un tablero.
+    * @param tablero Estado a evaluar.
+    * @return Puntuación numérica (positiva para ventaja de J1, negativa para J2).
+*/
 double AgenteEstudiante::heuristica(const Tablero& tablero) {
     switch(numHeuristica) {
         case 0: return heuristicaPrueba(tablero);
@@ -196,16 +196,16 @@ double AgenteEstudiante::heuristicaPrueba(const Tablero& tablero) {
             if (tablero.getCelda(f,c) != 0 ){
                 int valor = tablero.getFilas()-abs(f-(tablero.getFilas()/2)) + tablero.getColumnas()-abs(c-(tablero.getColumnas()/2)); 
                 if (tablero.getCelda(f,c) == id){
-                  score_positivo += valor;
-                 }
+                    score_positivo += valor;
+                }
                 else {
-                  score_negativo += valor;
+                    score_negativo += valor;
                 }
             }
         }
     }
 
-   
+
     return score_positivo - score_negativo;
 }
 
