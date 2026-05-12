@@ -12,10 +12,13 @@ int oponenteDe(int jugador) {
     return (jugador == 1) ? 2 : 1;
 }
 
+// Detecta la configuracion usada en el modo competicion de la practica.
 bool esModoCompeticion(const Tablero& tablero) {
     return tablero.getFilas() == 9 && tablero.getColumnas() == 9 && tablero.getNParaGanar() == 5;
 }
 
+// Aproxima si una casilla se puede jugar respetando fase Trinidad y adyacencia.
+// Se usa solo para valorar movilidad y amenazas, no para generar jugadas reales.
 bool esMovimientoLegalEstimado(const Tablero& tablero, int f, int c) {
     if (tablero.getCelda(f, c) != 0) return false;
     if (!esModoCompeticion(tablero)) return true;
@@ -23,6 +26,7 @@ bool esMovimientoLegalEstimado(const Tablero& tablero, int f, int c) {
     return tablero.esVacio() || tablero.tieneAdyacente(f, c);
 }
 
+// Cuenta movimientos disponibles de forma ligera, evitando generar todos los sucesores.
 int contarMovimientosLegalesEstimados(const Tablero& tablero) {
     int total = 0;
     for (int f = 0; f < tablero.getFilas(); ++f) {
@@ -33,6 +37,8 @@ int contarMovimientosLegalesEstimados(const Tablero& tablero) {
     return total;
 }
 
+// Asigna un peso creciente a una linea parcial: cuanto mas cerca esta de completar n,
+// mas importante es para la evaluacion.
 double pesoAmenaza(int piezas, int n) {
     if (piezas >= n) return 1000000000.0;
     if (piezas == n - 1) return 220000.0;
@@ -42,6 +48,8 @@ double pesoAmenaza(int piezas, int n) {
     return 4.0 * piezas;
 }
 
+// Evalua una ventana de n casillas si solo contiene fichas de un jugador.
+// Las casillas rojas y amarillas vacias reducen la fiabilidad de esa amenaza.
 double puntuacionVentana(int propias, int rivales, int n, int rojasVacias, int amarillasVacias) {
     if (propias > 0 && rivales > 0) return 0.0;
     if (propias == 0 && rivales == 0) return 0.0;
@@ -54,6 +62,8 @@ double puntuacionVentana(int propias, int rivales, int n, int rojasVacias, int a
     return -pesoAmenaza(rivales, n) * 1.12 * factorEspecial;
 }
 
+// Ajusta la evaluacion segun las casillas especiales del modo competicion:
+// verdes por turno extra, rojas por sabotaje y amarillas por limpieza de fila/columna.
 double ajusteCasillasEspeciales(const Tablero& tablero, int id) {
     if (!esModoCompeticion(tablero)) return 0.0;
 
@@ -112,6 +122,8 @@ double ajusteCasillasEspeciales(const Tablero& tablero, int id) {
     return score;
 }
 
+// Refuerza amenazas que pueden completarse en el turno actual o en el siguiente.
+// Penaliza especialmente las amenazas del rival porque no bloquearlas suele perder la partida.
 double ajusteAmenazasCriticas(const Tablero& tablero, int id) {
     const int rival = oponenteDe(id);
     const int n = tablero.getNParaGanar();
@@ -313,11 +325,10 @@ std::pair<int, int> AgenteEstudiante::JuegaAleatorio(const Tablero& tablero) {
 
 
 /**
-    * @brief Algoritmo de resolución completa para estados de final de juego.
-    * Determina si una posición está matemáticamente ganada, perdida o empatada.
-    * @param tablero Estado a evaluar.
-    * @param Mov [Salida] La jugada óptima encontrada.
-    * @return Resultado del análisis (VICTORIA, DERROTA o EMPATE).
+    * @brief Algoritmo Status: analiza exhaustivamente el arbol de juego.
+    * @param tablero Estado actual.
+    * @param Mov [Salida] Mejor movimiento encontrado.
+    * @return VICTORIA, DERROTA o EMPATE desde la perspectiva del agente.
 */
 AgenteEstudiante::Resultado AgenteEstudiante::Status(const Tablero &tablero, std::pair<int,int> &Mov) {
     /* ============== Este trozo de código se tiene que quedar aquí  =============== */
@@ -379,12 +390,12 @@ AgenteEstudiante::Resultado AgenteEstudiante::Status(const Tablero &tablero, std
 
 
 /**
-    * @brief Implementación del algoritmo Minimax clásico.
+    * @brief Minimax con limite de profundidad.
     * @param tablero Estado actual.
-    * @param profundidad Nivel actual en el árbol de búsqueda.
-    * @param prof_Max Límite de profundidad de la búsqueda.
-    * @param Mov [Salida] La mejor jugada encontrada en la raíz.
-    * @return Valor heurístico del estado.
+    * @param profundidad Profundidad actual.
+    * @param prof_Max Profundidad maxima.
+    * @param Mov [Salida] Mejor movimiento encontrado.
+    * @return Valor del estado desde la perspectiva del agente.
 */
 double AgenteEstudiante::minimax(const Tablero &tablero, int profundidad, int prof_Max, std::pair<int,int> &Mov) {
     /* ============== Este trozo de código se tiene que quedar aquí  =============== */
@@ -466,14 +477,14 @@ std::pair<int, int> AgenteEstudiante::JuegaInteligente(const Tablero& tablero) {
 
 
 /**
-    * @brief Implementación del algoritmo Minimax con Poda Alfa-Beta.
+    * @brief Minimax con poda Alfa-Beta y ordenacion heuristica de sucesores.
     * @param tablero Estado actual.
-    * @param profundidad Nivel actual en el árbol de búsqueda.
-    * @param prof_Max Límite de profundidad de la búsqueda.
-    * @param alfa Valor mínimo garantizado para el jugador MAX.
-    * @param beta Valor máximo garantizado para el jugador MIN.
-    * @param Mov [Salida] La mejor jugada encontrada en la raíz.
-    * @return Valor heurístico del estado tras la poda.
+    * @param profundidad Profundidad actual.
+    * @param prof_Max Profundidad maxima.
+    * @param alfa Cota inferior para el jugador maximizador.
+    * @param beta Cota superior para el jugador minimizador.
+    * @param Mov [Salida] Mejor movimiento encontrado.
+    * @return Valor del estado desde la perspectiva del agente.
 */
 double AgenteEstudiante::alfaBeta(const Tablero &tablero, int profundidad, int prof_Max, double alfa, double beta, std::pair<int,int> &Mov) {
     /* ============== Este trozo de código se tiene que quedar aquí  =============== */
@@ -573,7 +584,7 @@ double AgenteEstudiante::alfaBeta(const Tablero &tablero, int profundidad, int p
 /**
     * @brief Función heurística para evaluar la calidad de un tablero.
     * @param tablero Estado a evaluar.
-    * @return Puntuación numérica (positiva para ventaja de J1, negativa para J2).
+    * @return Valor positivo si el estado favorece al agente, negativo si favorece al rival.
 */
 double AgenteEstudiante::heuristica(const Tablero& tablero) {
     switch(numHeuristica) {
@@ -613,7 +624,13 @@ double AgenteEstudiante::heuristicaPrueba(const Tablero& tablero) {
     return score_positivo - score_negativo;
 }
 
-
+/**
+    * @brief Heuristica principal usada para competir contra los ninjas.
+    * Combina valor posicional, ventanas de n, combinaciones, movilidad,
+    * casillas especiales y amenazas completables.
+    * @param tablero Estado a evaluar.
+    * @return Valor positivo si el estado favorece al agente, negativo si favorece al rival.
+*/
 double AgenteEstudiante::heuristica1(const Tablero& tablero) {
     int ganador = tablero.comprobarGanador();
     if (ganador == id) return GANAR;
@@ -629,6 +646,7 @@ double AgenteEstudiante::heuristica1(const Tablero& tablero) {
 
     double score = 0.0;
 
+    // Valor posicional: se prima tener fichas cerca del centro del tablero.
     for (int f = 0; f < filas; ++f) {
         for (int c = 0; c < columnas; ++c) {
             int celda = tablero.getCelda(f, c);
@@ -643,6 +661,7 @@ double AgenteEstudiante::heuristica1(const Tablero& tablero) {
         }
     }
 
+    // Analiza ventanas de longitud n en horizontal, vertical y diagonales.
     for (int f = 0; f < filas; ++f) {
         for (int c = 0; c < columnas; ++c) {
             for (int d = 0; d < 4; ++d) {
@@ -676,6 +695,7 @@ double AgenteEstudiante::heuristica1(const Tablero& tablero) {
         }
     }
 
+    // Refuerzo mediante las combinaciones que ofrece la clase Tablero.
     int lineas4Propias = tablero.contarCombinaciones(std::max(1, n - 1), id);
     int lineas4Rivales = tablero.contarCombinaciones(std::max(1, n - 1), rival);
     int lineas3Propias = tablero.contarCombinaciones(std::max(1, n - 2), id);
@@ -684,6 +704,7 @@ double AgenteEstudiante::heuristica1(const Tablero& tablero) {
     score += 18000.0 * (lineas4Propias - 1.15 * lineas4Rivales);
     score += 900.0 * (lineas3Propias - 1.10 * lineas3Rivales);
 
+    // Movilidad: interesa tener mas opciones cuando nos toca mover.
     int movilidad = contarMovimientosLegalesEstimados(tablero);
     if (tablero.getJugadorTurno() == id) {
         score += 12.0 * movilidad;
@@ -697,6 +718,11 @@ double AgenteEstudiante::heuristica1(const Tablero& tablero) {
     return score;
 }
 
+/**
+    * @brief Heuristica alternativa simple para comparaciones.
+    * @param tablero Estado a evaluar.
+    * @return Valor positivo si el estado favorece al agente, negativo si favorece al rival.
+*/
 double AgenteEstudiante::heuristica2(const Tablero& tablero) {
     int ganador = tablero.comprobarGanador();
     if (ganador == id) return GANAR;
