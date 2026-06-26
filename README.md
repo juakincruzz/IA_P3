@@ -1,94 +1,179 @@
-# Práctica 3 de *Inteligencia Artificial*, curso 2025/2026
+# Práctica 3 - Inteligencia Artificial
 
-## Prerrequisitos
+Resolución de un problema práctico con juegos para la asignatura **Inteligencia Artificial** de la Universidad de Granada.
 
-### Crear una cuenta en [GitHub](https://github.com/). 
-Para ello, puedes usar tu correo personal, el de *@correo.ugr.es* o el de *@go.ugr.es*.
+El proyecto implementa un agente capaz de jugar a una variante de *n en raya*, utilizando distintos algoritmos de búsqueda y varias funciones heurísticas para evaluar los estados del tablero.
 
+## Descripción
 
-### 1. Añadir tu clave SSH a GitHub
-Hay varias maneras de conectarte desde tu ordenador a GitHub. Si utilizas un navegador, usarás tu usuario y contraseña. Desde el terminal, lo más cómodo es utilizar una clave SSH. Puedes crear una nueva si no tienes, o reutilizar una ya existente. Tienes toda la información para realizar la configuración en: 
-[Conectar a GitHub con SSH](https://docs.github.com/es/authentication/connecting-to-github-with-ssh)
+La práctica consiste en diseñar un agente inteligente que tome decisiones en un juego de tablero. Para ello se han implementado algoritmos clásicos de búsqueda en juegos adversarios, junto con heurísticas que permiten valorar posiciones cuando no es posible explorar todo el árbol de juego.
 
+El agente evalúa el tablero desde su propia perspectiva:
 
-### 2. Crear tu copia personal del repositorio de la asignatura
-Cada estudiante debe tener su propia copia del repositorio para poder trabajar sobre ella de forma privada. En adelante, a tu copia la llamaremos *origin*, y al repositorio original de la asignatura lo llamaremos *upstream*.
+* Valor positivo: posición favorable para el agente.
+* Valor negativo: posición favorable para el rival.
+* Valor cero: posición equilibrada o empate.
 
-Para garantizar que tu trabajo no sea público, utilizaremos el proceso de **importación de repositorio** de GitHub.
+## Algoritmos implementados
 
-Para realizar la copia, una vez que tengas creada tu cuenta en GitHub, haz click en <https://github.com/new/import> y rellena tal y como se ve en la imagen de abajo. El repositorio que quieres importar es `https://github.com/ugr-ccia-IA/practica3`. ¡Asegúrate de que tu repositorio es privado!
+### Status
 
-![Importar repositorio practica3](doc/img/import_new_repo.png)
+Explora de forma exhaustiva el árbol de juego, sin límite de profundidad y sin utilizar heurística.
 
+Devuelve:
 
-### 3. Clonar tu repositorio en tu máquina
-Una vez hecho el paso anterior, tendrás tu repositorio personal de la práctica3 en GitHub; puedes descargarlo a tu ordenador usando:
-`git clone git@github.com:TU_USUARIO_GITHUB/practica3.git` (si no has configurado tu clave SSH, esto no funcionará).
+* Victoria
+* Derrota
+* Empate
 
+Este algoritmo se utiliza principalmente para tableros pequeños, donde sí es posible analizar todos los estados posibles.
 
-### 4. Modificar el código y guardar los cambios
-Es el momento de empezar a modificar ficheros. Abre el fichero README.md (este fichero), ve al final y añade una línea que diga "Esto lo puse yo."
-Una vez lo hayas modificado, guarda el fichero, y ejecuta los siguientes comandos en el terminal estando dentro de la carpeta `practica3`:
+### Minimax
 
+Implementación del algoritmo **Minimax** con límite de profundidad.
+
+Cuando se alcanza un estado terminal, devuelve victoria, derrota o empate. Si se alcanza la profundidad máxima, se evalúa el tablero mediante la heurística seleccionada.
+
+### Alfa-Beta
+
+Optimización de Minimax mediante **poda Alfa-Beta**.
+
+Permite descartar ramas que no pueden modificar la decisión final, lo que hace posible alcanzar mayor profundidad de búsqueda. Además, los sucesores se ordenan previamente usando la heurística para mejorar la poda.
+
+## Heurísticas
+
+### Heurística 0
+
+Heurística de prueba basada principalmente en el valor posicional de las fichas, favoreciendo las posiciones cercanas al centro del tablero.
+
+Se mantiene como referencia para comparar con otras heurísticas.
+
+### Heurística 1
+
+Heurística principal utilizada en las pruebas finales y en el modo competición.
+
+Combina:
+
+* Detección de estados terminales.
+* Valor posicional de las fichas.
+* Evaluación de líneas parciales.
+* Penalización de amenazas fuertes del rival.
+* Recompensa de amenazas propias.
+* Movilidad disponible.
+* Tratamiento de casillas especiales.
+* Consideración de la fase Trinidad en modo competición.
+
+Esta heurística intenta detectar no solo las amenazas actuales, sino también aquellas que pueden completarse en el turno actual o en el siguiente, especialmente teniendo en cuenta que en el modo competición pueden jugarse varios movimientos por turno.
+
+### Heurística 2
+
+Heurística alternativa más simple.
+
+Combina la heurística de prueba con recuentos de combinaciones parciales. No se utiliza como heurística final, pero sirve como comparación intermedia entre la heurística básica y la heurística principal.
+
+## Resultados
+
+Se realizaron pruebas contra los ninjas usando la heurística 1.
+
+### Minimax con heurística 1
+
+Se probó el algoritmo Minimax con profundidad 4, tanto como jugador 1 como jugador 2.
+
+| Rol del agente | Rival  | Resultado |
+| -------------- | ------ | --------- |
+| Jugador 1      | ninja1 | Victoria  |
+| Jugador 1      | ninja2 | Victoria  |
+| Jugador 1      | ninja3 | Victoria  |
+| Jugador 1      | ninja4 | Victoria  |
+| Jugador 2      | ninja1 | Victoria  |
+| Jugador 2      | ninja2 | Victoria  |
+| Jugador 2      | ninja3 | Victoria  |
+| Jugador 2      | ninja4 | Victoria  |
+
+### Alfa-Beta con heurística 1
+
+Se probó el algoritmo Alfa-Beta con profundidad 7, usando el modo inteligente.
+
+| Rol del agente | Rival  | Resultado |
+| -------------- | ------ | --------- |
+| Jugador 1      | ninja1 | Victoria  |
+| Jugador 1      | ninja2 | Victoria  |
+| Jugador 1      | ninja3 | Victoria  |
+| Jugador 1      | ninja4 | Victoria  |
+| Jugador 2      | ninja1 | Victoria  |
+| Jugador 2      | ninja2 | Victoria  |
+| Jugador 2      | ninja3 | Victoria  |
+| Jugador 2      | ninja4 | Victoria  |
+
+### Resumen de resultados
+
+| Algoritmo | Heurística | Profundidad | Victorias contra ninjas |
+| --------- | ---------: | ----------: | ----------------------: |
+| Minimax   |          1 |           4 |                     8/8 |
+| Alfa-Beta |          1 |           7 |                     8/8 |
+
+La poda Alfa-Beta obtuvo los mismos resultados que Minimax en las pruebas realizadas, pero permitió alcanzar mayor profundidad de búsqueda.
+
+La práctica obtuvo una calificación final de **10/10**, lo que confirma el buen funcionamiento de la heurística diseñada y de los algoritmos implementados.
+
+## Organización del código
+
+Los métodos principales del agente están implementados en:
+
+```text
+AgenteEstudiante.hpp
+AgenteEstudiante.cpp
 ```
-git add . 
-git commit -m "Modificando README.md"
-git push origin main 
-```
 
-Los tres comandos anteriores le indican a git que 1) queremos guardar una nueva versión con todos los ficheros modificados de la carpeta, 2) que haga esa versión y le ponga el comentario "Cambiando el enlace del botón", y 3) que envíe esta nueva versión a la copia de nuestro repositorio alojada en GitHub.
+Además de los métodos declarados en la clase `AgenteEstudiante`, se han añadido funciones auxiliares en un `namespace` anónimo dentro de `AgenteEstudiante.cpp`.
 
-Este proceso es el que debes repetir cada vez que vayas avanzando en la implementación de la práctica: add, commit, push.
+Estas funciones se usan para:
 
+* Estimar movimientos legales.
+* Valorar amenazas.
+* Detectar el modo competición.
+* Evaluar casillas especiales.
+* Calcular movilidad.
+* Reforzar amenazas críticas.
 
+Se han dejado en el `.cpp` porque son detalles internos de implementación y no forman parte de la interfaz pública del agente. De esta forma, el fichero de cabecera mantiene únicamente la interfaz de la clase `AgenteEstudiante`, mientras que el `.cpp` contiene la implementación concreta y las funciones auxiliares privadas.
 
-### 5. Enlazar tu repositorio personal con el de la asignatura
-Aunque tu repositorio y el de la asignatura (recuerda que los conocemos por *origin* y *upstream* respectivamente) sean independientes, nos va a interesar que estén enlazados. De esta forma, podrás aplicar fácilmente sobre tu repositorio (*origin*) cualquier actualización que los profesores realicemos en *upstream*. Para enlazarlos, ejecuta lo siguiente dentro de la carpeta de tu repositorio:
+## Compilación
 
-`git remote add upstream git@github.com:ugr-ccia-IA/practica3.git`
-
-
-### Actualizar tu repositorio con cambios realizados en el de la asignatura
-Una vez tengas los repositiorios enlazados, lo único que debes hacer para aplicar posibles cambios en el repositorio de la asignatura en tu repositorio (cambios de *upstream* en *origin*) es: `git pull upstream main`
-
-Hacer esto no sobreescribirá tus avances en la implementación de la práctica, puesto que tú no deberías haber modificado ninguna parte del código diferente a la que se indica en el guión.
-
-Si quieres que esos cambios también se guarden en github, a continuación ejecuta: `git push origin main`
-
-
-> Si quieres saber más sobre Git y GitHub, en Internet existen multitud de recursos, incluidos videos y tutoriales. Para realizar esta práctica sólo necesitas lo básico (hacer commits), pero hay muchas cosas más que se pueden hacer con estas herramientas (uso de ramas, gestión de conflictos, etc.) 
-El propio GitHub pone a tu disposición un [breve curso](https://classroom.github.com/a/W33pQ3pa) (en inglés) para aprender lo básico.
-
-
-## Realización de la práctica
-El guión (disponible en [PRADO](https://pradogrado2526.ugr.es/)) contiene toda la información sobre en qué consiste la práctica3. Leelo con atención.
-
-Junto a ellos, también tienes a tu disposición una pequeña presentación de resumen, y un tutorial. Debes revisarlos pues continen los primeros pasos a realizar.
-
-
-### Instalación local (Linux)
-
-Una vez clonado tu repositorio personal en tu ordenador, puedes preparar y compilar el código ejecutando el script de instalación:
+Para instalar dependencias y compilar por primera vez:
 
 ```bash
 ./install.sh
 ```
 
-Este script instalará las dependencias necesarias y realizará la primera compilación. Si realizas cambios en el código posteriormente, solo necesitas ejecutar:
+Para recompilar después de realizar cambios:
 
 ```bash
 make -j$(nproc)
 ```
 
-> [!NOTE]
-> Por defecto, el software se compila en modo **Release** para garantizar el máximo rendimiento de la IA. Si necesitas depurar errores complejos y quieres compilar en modo **Debug**, ejecuta:
-> `cmake . -DCMAKE_BUILD_TYPE=Debug && make clean && make -j$(nproc)`
+## Ejecución
 
-A continuación, puedes lanzar el software con hebras con `./n_en_raya`, o sin hebras con `./n_en_rayaSH`. Para una partida rápida que juega un humano contra otro, usa `./n_en_raya -p1 humano -p2 humano`.
+Ejecutar con hebras:
 
+```bash
+./n_en_raya
+```
 
+Ejecutar sin hebras:
 
+```bash
+./n_en_rayaSH
+```
 
-## Más información
-Hemos creado un [fichero con preguntas frecuentes](./FAQ.md) que han ido apareciendo en las distintas sesiones de prácticas.
+Ejemplo de partida entre dos jugadores humanos:
 
+```bash
+./n_en_raya -p1 humano -p2 humano
+```
+
+## Conclusión
+
+La parte más importante de la práctica ha sido el diseño de una buena función de evaluación. En el modo competición no basta con contar fichas alineadas, ya que las reglas de fase, los turnos con varios movimientos y las casillas especiales modifican mucho el valor real de cada posición.
+
+La heurística 1 ha sido la más efectiva porque combina evaluación posicional, amenazas, movilidad y reglas específicas del modo competición. Gracias a esta estrategia, el agente consiguió ganar todas las pruebas realizadas contra los ninjas y la práctica obtuvo una calificación final de **10/10**.
