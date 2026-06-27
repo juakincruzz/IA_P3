@@ -1,32 +1,32 @@
 # Práctica 3 - Inteligencia Artificial
 
 ![C++](https://img.shields.io/badge/C++-17-blue)
-![AI](https://img.shields.io/badge/Artificial%20Intelligence-Game%20AI-purple)
-![Minimax](https://img.shields.io/badge/Search-Minimax-orange)
-![Alpha--Beta](https://img.shields.io/badge/Pruning-Alpha--Beta-green)
-![Grade](https://img.shields.io/badge/Grade-10%2F10-brightgreen)
+![IA](https://img.shields.io/badge/Inteligencia%20Artificial-Juegos-purple)
+![Minimax](https://img.shields.io/badge/B%C3%BAsqueda-Minimax-orange)
+![Alfa--Beta](https://img.shields.io/badge/Poda-Alfa--Beta-green)
+![Nota](https://img.shields.io/badge/Nota-10%2F10-brightgreen)
 
-Game-playing AI agent developed in C++ for the subject **Inteligencia Artificial** at the **University of Granada**.
+Agente inteligente desarrollado en C++ para la asignatura **Inteligencia Artificial** de la **Universidad de Granada**.
 
-The project implements an intelligent agent for a variant of *n en raya*, using adversarial search algorithms, custom heuristics and Alpha-Beta pruning to make competitive decisions in a game environment.
-
----
-
-## Project Summary
-
-| Area            | Description                         |
-| --------------- | ----------------------------------- |
-| Subject         | Inteligencia Artificial             |
-| Language        | C++                                 |
-| Problem type    | Game AI / adversarial search        |
-| Main algorithms | Status, Minimax, Alpha-Beta pruning |
-| Main heuristic  | Heuristic 1                         |
-| Final result    | 8/8 victories against ninjas        |
-| Final grade     | 10/10                               |
+El proyecto implementa un agente capaz de jugar a una variante de *n en raya*, utilizando algoritmos de búsqueda adversaria, poda Alfa-Beta y heurísticas personalizadas para tomar decisiones competitivas en un entorno de juego.
 
 ---
 
-## Description
+## Resumen del proyecto
+
+| Apartado               | Descripción                  |
+| ---------------------- | ---------------------------- |
+| Asignatura             | Inteligencia Artificial      |
+| Lenguaje               | C++                          |
+| Tipo de problema       | Juegos / búsqueda adversaria |
+| Algoritmos principales | Status, Minimax y Alfa-Beta  |
+| Heurística principal   | Heurística 1                 |
+| Resultado final        | 8/8 victorias contra ninjas  |
+| Calificación final     | 10/10                        |
+
+---
+
+## Descripción
 
 La práctica consiste en diseñar un agente inteligente que tome decisiones en un juego de tablero. Para ello se han implementado algoritmos clásicos de búsqueda en juegos adversarios, junto con heurísticas que permiten valorar posiciones cuando no es posible explorar todo el árbol de juego.
 
@@ -36,20 +36,20 @@ El agente evalúa el tablero desde su propia perspectiva:
 * Valor negativo: posición favorable para el rival.
 * Valor cero: posición equilibrada o empate.
 
-## Technical highlights
 
-This project focuses on several important Game AI concepts:
+## Aspectos técnicos destacados
 
-* Implementation of adversarial search algorithms.
-* Full game-tree exploration with `Status` for small boards.
-* Depth-limited `Minimax` with heuristic evaluation.
-* `Alpha-Beta pruning` to reduce the number of explored branches.
-* Heuristic ordering of successors to improve pruning efficiency.
-* Custom evaluation function adapted to competition mode.
-* Detection of critical threats that can be completed in the current or next turn.
-* Evaluation of special cells and multi-move turns.
-* Internal helper functions hidden inside an anonymous namespace to keep the public interface clean.
+Esta práctica trabaja varios conceptos importantes de inteligencia artificial aplicada a juegos:
 
+* Implementación de algoritmos de búsqueda adversaria.
+* Exploración completa del árbol de juego mediante `Status` en tableros pequeños.
+* Uso de `Minimax` con límite de profundidad.
+* Optimización de la búsqueda mediante poda `Alfa-Beta`.
+* Ordenación heurística de sucesores para mejorar la poda.
+* Diseño de una función de evaluación adaptada al modo competición.
+* Detección de amenazas críticas que pueden completarse en el turno actual o en el siguiente.
+* Evaluación de casillas especiales y turnos con varios movimientos.
+* Uso de funciones auxiliares en un `namespace` anónimo para mantener limpia la interfaz pública del agente.
 
 
 ## Algoritmos implementados
