@@ -1,10 +1,32 @@
 # Práctica 3 - Inteligencia Artificial
 
-Resolución de un problema práctico con juegos para la asignatura **Inteligencia Artificial** de la Universidad de Granada.
+![C++](https://img.shields.io/badge/C++-17-blue)
+![AI](https://img.shields.io/badge/Artificial%20Intelligence-Game%20AI-purple)
+![Minimax](https://img.shields.io/badge/Search-Minimax-orange)
+![Alpha--Beta](https://img.shields.io/badge/Pruning-Alpha--Beta-green)
+![Grade](https://img.shields.io/badge/Grade-10%2F10-brightgreen)
 
-El proyecto implementa un agente capaz de jugar a una variante de *n en raya*, utilizando distintos algoritmos de búsqueda y varias funciones heurísticas para evaluar los estados del tablero.
+Game-playing AI agent developed in C++ for the subject **Inteligencia Artificial** at the **University of Granada**.
 
-## Descripción
+The project implements an intelligent agent for a variant of *n en raya*, using adversarial search algorithms, custom heuristics and Alpha-Beta pruning to make competitive decisions in a game environment.
+
+---
+
+## Project Summary
+
+| Area            | Description                         |
+| --------------- | ----------------------------------- |
+| Subject         | Inteligencia Artificial             |
+| Language        | C++                                 |
+| Problem type    | Game AI / adversarial search        |
+| Main algorithms | Status, Minimax, Alpha-Beta pruning |
+| Main heuristic  | Heuristic 1                         |
+| Final result    | 8/8 victories against ninjas        |
+| Final grade     | 10/10                               |
+
+---
+
+## Description
 
 La práctica consiste en diseñar un agente inteligente que tome decisiones en un juego de tablero. Para ello se han implementado algoritmos clásicos de búsqueda en juegos adversarios, junto con heurísticas que permiten valorar posiciones cuando no es posible explorar todo el árbol de juego.
 
@@ -13,6 +35,7 @@ El agente evalúa el tablero desde su propia perspectiva:
 * Valor positivo: posición favorable para el agente.
 * Valor negativo: posición favorable para el rival.
 * Valor cero: posición equilibrada o empate.
+
 
 ## Algoritmos implementados
 
