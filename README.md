@@ -36,6 +36,21 @@ El agente evalúa el tablero desde su propia perspectiva:
 * Valor negativo: posición favorable para el rival.
 * Valor cero: posición equilibrada o empate.
 
+## Technical highlights
+
+This project focuses on several important Game AI concepts:
+
+* Implementation of adversarial search algorithms.
+* Full game-tree exploration with `Status` for small boards.
+* Depth-limited `Minimax` with heuristic evaluation.
+* `Alpha-Beta pruning` to reduce the number of explored branches.
+* Heuristic ordering of successors to improve pruning efficiency.
+* Custom evaluation function adapted to competition mode.
+* Detection of critical threats that can be completed in the current or next turn.
+* Evaluation of special cells and multi-move turns.
+* Internal helper functions hidden inside an anonymous namespace to keep the public interface clean.
+
+
 
 ## Algoritmos implementados
 
